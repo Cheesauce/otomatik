@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Conduit</string>
+
+    <string name="accessibility_label">Conduit automation</string>
+    <string name="accessibility_description">Lets Conduit read the current screen and tap, type and scroll on your behalf. This is what makes automations able to drive your other apps. Conduit never sends screen contents anywhere — everything stays on this device.</string>
+    <string name="notification_listener_label">Conduit notification triggers</string>
+
+    <string name="channel_runtime">Automation runtime</string>
+    <string name="channel_runtime_description">The ongoing notification that keeps your automations responsive.</string>
+    <string name="channel_flow_output">Flow notifications</string>
+
+    <plurals name="watching_flows">
+        <item quantity="one">Watching %d flow</item>
+        <item quantity="other">Watching %d flows</item>
+    </plurals>
+    <plurals name="running_flows">
+        <item quantity="one">Running %d flow</item>
+        <item quantity="other">Running %d flows</item>
+    </plurals>
+</resources>

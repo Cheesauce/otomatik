@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Keeping the runtime alive. Without a foreground service, event-driven
+         flows stop firing within minutes on modern Android. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Time triggers. Exact alarms keep a 07:00 routine at 07:00. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+    <!-- Device-state actions. Both are user-granted through a settings screen,
+         not through a run-time prompt. -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Location triggers only. Requested lazily, when a geofence flow exists. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- The app picker lists everything installed, so the user can choose a
+         target app without typing a package name from memory. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <application
+        android:name=".ConduitApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Conduit">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Conduit">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- The engine's eyes and hands. The user must enable this by hand in
+             Settings > Accessibility; there is no way to grant it in-app. -->
+        <service
+            android:name=".service.ConduitAccessibilityService"
+            android:exported="true"
+            android:label="@string/accessibility_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- Separate grant from the one above, so time-only users never have
+             to hand over notification access. -->
+        <service
+            android:name=".triggers.NotificationTriggerService"
+            android:exported="true"
+            android:label="@string/notification_listener_label"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!-- "specialUse" because driving other apps fits none of the standard
+             foreground-service types. -->
+        <service
+            android:name=".service.ConduitForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-configured device automation: watches triggers and runs
+                    user-authored flows on demand." />
+        </service>
+
+        <receiver
+            android:name=".triggers.AlarmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.revlv.conduit.ALARM_FIRE" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".triggers.SystemEventReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".triggers.GeofenceReceiver"
+            android:exported="false" />
+
+        <!-- Exported on purpose: lets a flow be started from adb or another
+             app by broadcasting com.revlv.conduit.TRIGGER with a string extra
+             named "name". See the README for the exact adb command. -->
+        <receiver
+            android:name=".triggers.ExternalTriggerReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="com.revlv.conduit.TRIGGER" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

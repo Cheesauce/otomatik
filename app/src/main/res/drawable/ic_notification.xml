@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFF">
+    <!-- A branching path: one trigger splitting into several actions. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6,4a2,2 0 1,0 0,4a2,2 0 1,0 0,-4M6,9.5l0,5M6,14.5c0,2 1.5,3.5 3.5,3.5l3,0M6,14.5c0,-2 1.5,-3.5 3.5,-3.5l3,0M18,16a2,2 0 1,0 0,4a2,2 0 1,0 0,-4M18,9a2,2 0 1,0 0,4a2,2 0 1,0 0,-4" />
+</vector>
